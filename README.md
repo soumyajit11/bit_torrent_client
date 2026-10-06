@@ -21,6 +21,25 @@ the content; it does not contain the downloadable files themselves.
 There is no tracker communication, peer discovery, TCP, handshake, peer message
 handling, downloading, piece verification, or concurrency yet.
 
+## Focused primitive-decoder progress
+
+BitTorrent Client Learning Project
+
+- [x] Bencode integers
+- [x] Bencode byte strings
+- [ ] Bencode lists
+- [ ] Bencode dictionaries
+- [ ] Parse .torrent metadata
+- [ ] Calculate info hash
+- [ ] Contact tracker
+- [ ] Connect to peer
+- [ ] BitTorrent handshake
+- [ ] Download and verify pieces
+
+This checklist marks the deliberately small primitive-decoder exercise. The
+repository also contains earlier, broader metadata-inspector work, which is left
+unchanged for preservation.
+
 ## Run it
 
 Requires **Python 3.10+**, with no third-party packages. Run from the project root:

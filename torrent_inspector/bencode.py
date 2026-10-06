@@ -5,6 +5,34 @@ class BencodeError(ValueError):
     """The input is not valid Bencode."""
 
 
+def decode_integer(data: bytes) -> int:
+    """Decode one complete Bencoded integer such as b"i42e"."""
+    if not data.startswith(b"i") or not data.endswith(b"e"):
+        raise BencodeError("integer must start with 'i' and end with 'e'")
+
+    raw = data[1:-1]
+    digits = raw[1:] if raw.startswith(b"-") else raw
+    if (not digits.isdigit() or raw == b"-0"
+            or (len(digits) > 1 and digits.startswith(b"0"))):
+        raise BencodeError("invalid integer")
+    return int(raw)
+
+
+def decode_byte_string(data: bytes) -> bytes:
+    """Decode one complete Bencoded byte string such as b"4:spam"."""
+    separator = data.find(b":")
+    if separator == -1:
+        raise BencodeError("byte string is missing ':'")
+
+    raw_length = data[:separator]
+    if not raw_length.isdigit() or (len(raw_length) > 1 and raw_length.startswith(b"0")):
+        raise BencodeError("invalid byte-string length")
+    value = data[separator + 1:]
+    if len(value) != int(raw_length):
+        raise BencodeError("byte string length does not match its data")
+    return value
+
+
 class Decoder:
     def __init__(self, data: bytes):
         self.data = data

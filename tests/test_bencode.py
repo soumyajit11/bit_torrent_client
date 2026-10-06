@@ -1,9 +1,37 @@
 import unittest
 
-from torrent_inspector.bencode import BencodeError, Decoder, decode
+from torrent_inspector.bencode import (
+    BencodeError,
+    Decoder,
+    decode,
+    decode_byte_string,
+    decode_integer,
+)
 
 
 class BencodeTests(unittest.TestCase):
+    def test_primitive_integers(self):
+        self.assertEqual(decode_integer(b"i42e"), 42)
+        self.assertEqual(decode_integer(b"i-7e"), -7)
+        self.assertEqual(decode_integer(b"i0e"), 0)
+
+    def test_primitive_byte_strings(self):
+        self.assertEqual(decode_byte_string(b"4:spam"), b"spam")
+        self.assertEqual(decode_byte_string(b"0:"), b"")
+
+    def test_primitive_malformed_and_truncated_input(self):
+        for decoder, encoded in [
+            (decode_integer, b"i03e"),
+            (decode_integer, b"i42"),
+            (decode_integer, b"i-0e"),
+            (decode_byte_string, b"4spam"),
+            (decode_byte_string, b"3:sp"),
+            (decode_byte_string, b"x:spam"),
+        ]:
+            with self.subTest(encoded=encoded):
+                with self.assertRaises(BencodeError):
+                    decoder(encoded)
+
     def test_four_types_and_binary_strings(self):
         for encoded, expected in [
             (b"i42e", 42), (b"i-7e", -7), (b"i0e", 0),
