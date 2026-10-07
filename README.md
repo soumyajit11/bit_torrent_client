@@ -21,24 +21,23 @@ the content; it does not contain the downloadable files themselves.
 There is no tracker communication, peer discovery, TCP, handshake, peer message
 handling, downloading, piece verification, or concurrency yet.
 
-## Focused primitive-decoder progress
+## Learning progress
 
 BitTorrent Client Learning Project
 
 - [x] Bencode integers
 - [x] Bencode byte strings
-- [ ] Bencode lists
-- [ ] Bencode dictionaries
-- [ ] Parse .torrent metadata
-- [ ] Calculate info hash
+- [x] Bencode lists
+- [x] Bencode dictionaries
+- [x] Parse .torrent metadata
+- [x] Calculate info hash
 - [ ] Contact tracker
 - [ ] Connect to peer
 - [ ] BitTorrent handshake
 - [ ] Download and verify pieces
 
-This checklist marks the deliberately small primitive-decoder exercise. The
-repository also contains earlier, broader metadata-inspector work, which is left
-unchanged for preservation.
+The project can also construct an HTTP tracker announce URL without sending it.
+Network communication remains outside the current implementation.
 
 ## Run it
 
@@ -122,10 +121,12 @@ BitTorrent_Client/
 │   ├── __init__.py
 │   ├── __main__.py
 │   ├── bencode.py
-│   └── metadata.py
+│   ├── metadata.py
+│   └── tracker.py
 └── tests/
     ├── test_bencode.py
-    └── test_metadata.py
+    ├── test_metadata.py
+    └── test_tracker.py
 ```
 
 - `.gitignore`: excludes Python caches and a local virtual environment.
@@ -135,10 +136,13 @@ BitTorrent_Client/
   and user-facing errors.
 - `torrent_inspector/bencode.py`: four-type decoder and original `info` byte capture.
 - `torrent_inspector/metadata.py`: torrent field validation, summary, and info hashing.
+- `torrent_inspector/tracker.py`: builds an HTTP tracker announce URL without
+  making a request.
 - `tests/test_bencode.py`: valid types, binary strings, invalid encodings, nesting,
   and top-level `info` capture.
 - `tests/test_metadata.py`: single/multi-file data, hash boundaries, zero-length
   content, malformed metadata, and command-line success/errors.
+- `tests/test_tracker.py`: binary parameter encoding and tracker URL construction.
 
 ## Deliberate limits
 
@@ -154,6 +158,10 @@ path validation belongs to a later milestone.
 
 - [✅] Milestone 1 - Torrent metadata parser
 - [ ] Milestone 2 - Tracker communication
+  - [x] Build announce request
+  - [ ] Send HTTP announce request
+  - [ ] Decode tracker response
+  - [ ] Extract peers
 - [ ] Milestone 3 - Peer discovery
 - [ ] Milestone 4 - TCP peer connection
 - [ ] Milestone 5 - BitTorrent handshake
