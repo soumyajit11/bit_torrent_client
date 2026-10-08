@@ -126,7 +126,8 @@ BitTorrent_Client/
 └── tests/
     ├── test_bencode.py
     ├── test_metadata.py
-    └── test_tracker.py
+    ├── test_tracker.py
+    └── test_tracker_response.py
 ```
 
 - `.gitignore`: excludes Python caches and a local virtual environment.
@@ -143,6 +144,8 @@ BitTorrent_Client/
 - `tests/test_metadata.py`: single/multi-file data, hash boundaries, zero-length
   content, malformed metadata, and command-line success/errors.
 - `tests/test_tracker.py`: binary parameter encoding and tracker URL construction.
+- `tests/test_tracker_response.py`: offline tracker-response validation and raw
+  compact-peer preservation.
 
 ## Deliberate limits
 
@@ -159,9 +162,10 @@ path validation belongs to a later milestone.
 - [✅] Milestone 1 - Torrent metadata parser
 - [ ] Milestone 2 - Tracker communication
   - [x] Build announce request
+  - [x] Decode tracker response
   - [ ] Send HTTP announce request
-  - [ ] Decode tracker response
-  - [ ] Extract peers
+  - [ ] Decode compact peer list
+  - [ ] Extract peer addresses
 - [ ] Milestone 3 - Peer discovery
 - [ ] Milestone 4 - TCP peer connection
 - [ ] Milestone 5 - BitTorrent handshake

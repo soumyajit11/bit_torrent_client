@@ -1,10 +1,23 @@
 """Build HTTP tracker announce URLs without sending a request."""
 
+from dataclasses import dataclass
 from urllib.parse import quote, quote_from_bytes, urlsplit, urlunsplit
+
+from .bencode import BencodeError, decode
 
 
 class TrackerRequestError(ValueError):
     """The data needed to build a tracker announce request is invalid."""
+
+
+class TrackerResponseError(ValueError):
+    """A tracker response cannot be used by this client."""
+
+
+@dataclass(frozen=True)
+class TrackerResponse:
+    interval: int
+    peers: bytes
 
 
 def info_hash_bytes(info_hash: str) -> bytes:
@@ -37,3 +50,27 @@ def build_announce_url(tracker_url: str, info_hash: str, peer_id: bytes, port: i
     parts = urlsplit(tracker_url)
     query = "&".join(filter(None, (parts.query, "&".join(parameters))))
     return urlunsplit((parts.scheme, parts.netloc, parts.path, query, parts.fragment))
+
+
+def parse_tracker_response(data: bytes) -> TrackerResponse:
+    """Parse an offline HTTP tracker response without decoding compact peers."""
+    try:
+        response = decode(data)
+    except BencodeError as exc:
+        raise TrackerResponseError("invalid tracker response Bencode") from exc
+
+    if not isinstance(response, dict):
+        raise TrackerResponseError("tracker response must be a dictionary")
+    if b"failure reason" in response:
+        reason = response[b"failure reason"]
+        if not isinstance(reason, bytes):
+            raise TrackerResponseError("tracker failure reason must be bytes")
+        raise TrackerResponseError(f"tracker failure: {reason.decode('utf-8', errors='replace')}")
+
+    interval = response.get(b"interval")
+    if not isinstance(interval, int) or interval <= 0:
+        raise TrackerResponseError("tracker interval must be a positive integer")
+    peers = response.get(b"peers")
+    if not isinstance(peers, bytes):
+        raise TrackerResponseError("tracker peers must be bytes")
+    return TrackerResponse(interval=interval, peers=peers)
